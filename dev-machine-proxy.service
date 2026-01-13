@@ -1,0 +1,22 @@
+[Unit]
+Description=Dev Machine Proxy - Service Discovery Dashboard
+After=network.target docker.service
+Wants=docker.service
+
+[Service]
+Type=simple
+User=%i
+ExecStart=/usr/local/bin/dev-machine-proxy -projects %h/Projects
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+# Security hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
