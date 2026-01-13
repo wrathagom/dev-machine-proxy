@@ -1,1 +1,15 @@
 dev-machine-proxy
+
+# Go build/test artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+coverage.out
+
+# Common build output dirs
+bin/
+dist/
