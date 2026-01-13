@@ -2,7 +2,9 @@ package web
 
 import (
 	"encoding/json"
+	"net"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"dev-machine-proxy/internal/config"
@@ -49,6 +51,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // handleAPIServices returns services as JSON
 func (h *Handler) handleAPIServices(w http.ResponseWriter, r *http.Request) {
 	services := h.discoverer.GetServices()
+	services = adjustServiceURLs(services, r)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(services)
@@ -110,4 +113,67 @@ func (h *Handler) handleConfigPage(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) handleAPIStats(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(h.sysMonitor.GetHistory())
+}
+
+func adjustServiceURLs(services []discovery.Service, r *http.Request) []discovery.Service {
+	host := requestHostname(r)
+	if host == "" {
+		return services
+	}
+
+	adjusted := make([]discovery.Service, len(services))
+	copy(adjusted, services)
+
+	for i := range adjusted {
+		if adjusted[i].URL == "" {
+			continue
+		}
+		if updated, ok := replaceLocalhostURL(adjusted[i].URL, host); ok {
+			adjusted[i].URL = updated
+		}
+	}
+
+	return adjusted
+}
+
+func requestHostname(r *http.Request) string {
+	if r == nil || r.Host == "" {
+		return ""
+	}
+
+	if strings.Contains(r.Host, ":") {
+		if host, _, err := net.SplitHostPort(r.Host); err == nil {
+			return host
+		}
+	}
+
+	return r.Host
+}
+
+func replaceLocalhostURL(rawURL, host string) (string, bool) {
+	parsed, err := url.Parse(rawURL)
+	if err != nil || parsed.Host == "" {
+		return "", false
+	}
+
+	if !isLoopbackHost(parsed.Hostname()) {
+		return "", false
+	}
+
+	if port := parsed.Port(); port != "" {
+		parsed.Host = net.JoinHostPort(host, port)
+	} else {
+		parsed.Host = host
+	}
+
+	return parsed.String(), true
+}
+
+func isLoopbackHost(host string) bool {
+	if host == "localhost" {
+		return true
+	}
+
+	ip := net.ParseIP(host)
+	return ip != nil && ip.IsLoopback()
 }
