@@ -248,11 +248,23 @@ header {
     position: relative;
 }
 
+.title-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.logo {
+    width: 48px;
+    height: 48px;
+}
+
 h1 {
     font-size: 2.5rem;
     font-weight: 300;
     color: var(--accent-primary);
-    margin-bottom: 0.5rem;
+    margin-bottom: 0;
 }
 
 .subtitle {
@@ -555,7 +567,14 @@ const indexHTML = `<!DOCTYPE html>
 <body>
     <div class="container">
         <header>
-            <h1 id="page-title">Dev Machine Services</h1>
+            <div class="title-row">
+                <svg class="logo" viewBox="0 0 64 64">
+                    <rect width="64" height="64" rx="8" fill="var(--bg-secondary)"/>
+                    <path d="M16 20 L28 32 L16 44" stroke="var(--accent-primary)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                    <line x1="32" y1="44" x2="48" y2="44" stroke="var(--accent-secondary)" stroke-width="4" stroke-linecap="round"/>
+                </svg>
+                <h1 id="page-title">Dev Machine Services</h1>
+            </div>
             <a href="/config" class="config-link">Settings</a>
         </header>
 
