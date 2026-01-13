@@ -533,6 +533,7 @@ h1 {
     transition: max-height 0.3s ease, opacity 0.3s ease;
     max-height: 2000px;
     opacity: 1;
+    padding-top: 0.5rem;
 }
 
 .section.collapsed .section-content {
