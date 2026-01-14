@@ -9,27 +9,30 @@ import (
 
 	"dev-machine-proxy/internal/config"
 	"dev-machine-proxy/internal/discovery"
+	"dev-machine-proxy/internal/projects"
 	"dev-machine-proxy/internal/system"
 	"dev-machine-proxy/internal/terminal"
 )
 
 // Handler serves the web dashboard
 type Handler struct {
-	discoverer  *discovery.Discoverer
-	configMgr   *config.Manager
-	sysMonitor  *system.Monitor
-	termHandler *terminal.Handler
-	mux         *http.ServeMux
+	discoverer     *discovery.Discoverer
+	configMgr      *config.Manager
+	sysMonitor     *system.Monitor
+	termHandler    *terminal.Handler
+	projectScanner *projects.Scanner
+	mux            *http.ServeMux
 }
 
 // NewHandler creates a new web handler
-func NewHandler(d *discovery.Discoverer, cfg *config.Manager, mon *system.Monitor) *Handler {
+func NewHandler(d *discovery.Discoverer, cfg *config.Manager, mon *system.Monitor, projectsDir string) *Handler {
 	h := &Handler{
-		discoverer:  d,
-		configMgr:   cfg,
-		sysMonitor:  mon,
-		termHandler: terminal.NewHandler(),
-		mux:         http.NewServeMux(),
+		discoverer:     d,
+		configMgr:      cfg,
+		sysMonitor:     mon,
+		termHandler:    terminal.NewHandler(),
+		projectScanner: projects.NewScanner(projectsDir),
+		mux:            http.NewServeMux(),
 	}
 
 	h.mux.HandleFunc("/", h.handleIndex)
@@ -39,6 +42,7 @@ func NewHandler(d *discovery.Discoverer, cfg *config.Manager, mon *system.Monito
 	h.mux.HandleFunc("/api/config", h.handleAPIConfig)
 	h.mux.HandleFunc("/api/themes", h.handleAPIThemes)
 	h.mux.HandleFunc("/api/stats", h.handleAPIStats)
+	h.mux.HandleFunc("/api/projects", h.handleAPIProjects)
 	h.mux.HandleFunc("/ws/terminal", h.termHandler.ServeWS)
 
 	return h
@@ -123,6 +127,13 @@ func (h *Handler) handleFavicon(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) handleAPIStats(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(h.sysMonitor.GetHistory())
+}
+
+// handleAPIProjects returns project information
+func (h *Handler) handleAPIProjects(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	projects := h.projectScanner.Scan()
+	json.NewEncoder(w).Encode(projects)
 }
 
 func adjustServiceURLs(services []discovery.Service, r *http.Request) []discovery.Service {

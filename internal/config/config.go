@@ -9,11 +9,20 @@ import (
 
 // Config holds user-configurable settings
 type Config struct {
-	Title           string `json:"title"`
-	Theme           string `json:"theme"`
-	RefreshInterval int    `json:"refreshInterval"` // in seconds
-	TerminalFont    string `json:"terminalFont"`    // CSS font-family for terminal
-	CustomHeadHTML  string `json:"customHeadHtml"`  // Custom HTML to inject in <head> (for fonts, etc.)
+	Title           string          `json:"title"`
+	Theme           string          `json:"theme"`
+	RefreshInterval int             `json:"refreshInterval"` // in seconds
+	TerminalFont    string          `json:"terminalFont"`    // CSS font-family for terminal
+	CustomHeadHTML  string          `json:"customHeadHtml"`  // Custom HTML to inject in <head> (for fonts, etc.)
+	Sections        SectionSettings `json:"sections"`        // Which sections to show
+}
+
+// SectionSettings controls visibility of dashboard sections
+type SectionSettings struct {
+	Performance bool `json:"performance"`
+	Projects    bool `json:"projects"`
+	Services    bool `json:"services"`
+	Terminal    bool `json:"terminal"`
 }
 
 // DefaultConfig returns the default configuration
@@ -30,6 +39,12 @@ func DefaultConfig() Config {
     src: url('https://cdn.jsdelivr.net/gh/romkatv/powerlevel10k-media/MesloLGS%20NF%20Regular.ttf') format('truetype');
 }
 </style>`,
+		Sections: SectionSettings{
+			Performance: true,
+			Projects:    true,
+			Services:    true,
+			Terminal:    true,
+		},
 	}
 }
 

@@ -4,7 +4,7 @@ set -e
 # Dev Machine Proxy - Install/Update Script
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-INSTALL_PATH="/usr/local/bin/dev-machine-proxy"
+INSTALL_PATH="$HOME/.local/bin/dev-machine-proxy"
 SERVICE_NAME="dev-machine-proxy@${USER}.service"
 PROJECTS_DIR="${PROJECTS_DIR:-$HOME/Projects}"
 
@@ -30,9 +30,10 @@ if systemctl --user is-active --quiet "$SERVICE_NAME" 2>/dev/null; then
 fi
 
 # Install binary
-echo "Installing binary to $INSTALL_PATH (requires sudo)..."
-sudo cp dev-machine-proxy "$INSTALL_PATH"
-sudo chmod 755 "$INSTALL_PATH"
+echo "Installing binary to $INSTALL_PATH..."
+mkdir -p "$(dirname "$INSTALL_PATH")"
+cp dev-machine-proxy "$INSTALL_PATH"
+chmod 755 "$INSTALL_PATH"
 
 # Create user systemd directory if it doesn't exist
 mkdir -p ~/.config/systemd/user
@@ -65,9 +66,11 @@ echo "Enabling and starting service..."
 systemctl --user enable dev-machine-proxy.service
 systemctl --user start dev-machine-proxy.service
 
-# Enable lingering so service runs without login
-echo "Enabling user lingering (service will run at boot)..."
-sudo loginctl enable-linger "$USER"
+# Enable lingering so service runs without login (optional, requires sudo)
+if command -v loginctl &> /dev/null; then
+    echo "Enabling user lingering (service will run at boot)..."
+    loginctl enable-linger "$USER" 2>/dev/null || echo "Note: Could not enable lingering (may require sudo). Service will only run when logged in."
+fi
 
 echo ""
 echo "=== Installation Complete ==="

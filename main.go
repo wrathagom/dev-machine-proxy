@@ -51,7 +51,7 @@ func main() {
 	}()
 
 	// Set up web server
-	handler := web.NewHandler(disc, configMgr, sysMonitor)
+	handler := web.NewHandler(disc, configMgr, sysMonitor, *projectsDir)
 
 	addr := fmt.Sprintf(":%d", *port)
 	log.Printf("Starting dashboard on http://localhost%s", addr)

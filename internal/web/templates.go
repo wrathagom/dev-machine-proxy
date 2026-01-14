@@ -399,6 +399,26 @@ h1 {
     color: var(--tag-known-text);
 }
 
+.project-status-icons {
+    display: flex;
+    gap: 0.4rem;
+    align-items: center;
+}
+
+.status-icon {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.15rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    color: var(--port-text);
+}
+
+.status-icon svg {
+    width: 14px;
+    height: 14px;
+}
+
 .empty-state {
     text-align: center;
     padding: 4rem 2rem;
@@ -531,9 +551,10 @@ h1 {
 .section-content {
     overflow: hidden;
     transition: max-height 0.3s ease, opacity 0.3s ease;
-    max-height: 2000px;
+    max-height: 5000px;
     opacity: 1;
     padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
 }
 
 .section.collapsed .section-content {
@@ -613,6 +634,26 @@ const indexHTML = `<!DOCTYPE html>
             </div>
         </div>
 
+        <div class="section" id="projects-section">
+            <div class="section-header" onclick="toggleSection('projects-section')">
+                <span class="section-toggle">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </span>
+                <span class="section-title">Projects</span>
+            </div>
+            <p class="section-subtitle">Project folders with git status</p>
+            <div class="section-content">
+                <div id="projects" class="services-grid">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>Scanning projects...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="section" id="services-section">
             <div class="section-header" onclick="toggleSection('services-section')">
                 <span class="section-toggle">
@@ -676,6 +717,14 @@ const indexHTML = `<!DOCTYPE html>
                     terminalFont = '"' + config.terminalFont + '", monospace';
                 }
 
+                // Apply section visibility
+                if (config.sections) {
+                    toggleSectionVisibility('performance-section', config.sections.performance);
+                    toggleSectionVisibility('projects-section', config.sections.projects);
+                    toggleSectionVisibility('services-section', config.sections.services);
+                    toggleSectionVisibility('terminal-section', config.sections.terminal);
+                }
+
                 return config;
             } catch (error) {
                 console.error('Failed to load config:', error);
@@ -734,6 +783,123 @@ const indexHTML = `<!DOCTYPE html>
             ` + "`" + `).join('');
         }
 
+        async function loadProjects() {
+            try {
+                const response = await fetch('/api/projects');
+                const projects = await response.json();
+                renderProjects(projects);
+            } catch (error) {
+                console.error('Failed to load projects:', error);
+                document.getElementById('projects').innerHTML = ` + "`" + `
+                    <div class="empty-state">
+                        <p>Failed to load projects</p>
+                    </div>
+                ` + "`" + `;
+            }
+        }
+
+        function renderProjects(projects) {
+            const container = document.getElementById('projects');
+
+            if (!projects || projects.length === 0) {
+                container.innerHTML = ` + "`" + `
+                    <div class="empty-state">
+                        <p>No projects found</p>
+                        <p style="font-size: 0.8rem; margin-top: 0.5rem;">Set the -projects flag to scan a directory</p>
+                    </div>
+                ` + "`" + `;
+                return;
+            }
+
+            container.innerHTML = projects.map(proj => {
+                let statusIcons = [];
+
+                // Changed files icon (pencil)
+                if (proj.changedFiles > 0) {
+                    statusIcons.push(` + "`" + `
+                        <span class="status-icon" title="${proj.changedFiles} changed files">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 20h9"></path>
+                                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                            </svg>
+                            ${proj.changedFiles}
+                        </span>
+                    ` + "`" + `);
+                }
+
+                // Unpushed commits icon (upload/arrow up)
+                if (proj.unpushed > 0) {
+                    statusIcons.push(` + "`" + `
+                        <span class="status-icon" title="${proj.unpushed} unpushed commits">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="12" y1="19" x2="12" y2="5"></line>
+                                <polyline points="5 12 12 5 19 12"></polyline>
+                            </svg>
+                            ${proj.unpushed}
+                        </span>
+                    ` + "`" + `);
+                }
+
+                // Ahead icon (arrow up from line)
+                if (proj.ahead > 0) {
+                    statusIcons.push(` + "`" + `
+                        <span class="status-icon" title="${proj.ahead} commits ahead of remote">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="18 15 12 9 6 15"></polyline>
+                                <line x1="12" y1="9" x2="12" y2="21"></line>
+                            </svg>
+                            ${proj.ahead}
+                        </span>
+                    ` + "`" + `);
+                }
+
+                // Behind icon (arrow down)
+                if (proj.behind > 0) {
+                    statusIcons.push(` + "`" + `
+                        <span class="status-icon" title="${proj.behind} commits behind remote">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                            ${proj.behind}
+                        </span>
+                    ` + "`" + `);
+                }
+
+                // Clean status icon (checkmark)
+                if (proj.isGit && statusIcons.length === 0) {
+                    statusIcons.push(` + "`" + `
+                        <span class="status-icon" title="Clean - no changes">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </span>
+                    ` + "`" + `);
+                }
+
+                const lastMod = proj.lastModified ? new Date(proj.lastModified).toLocaleDateString() : '';
+
+                return ` + "`" + `
+                <div class="service-card ${proj.changedFiles > 0 || proj.unpushed > 0 ? 'http' : ''}">
+                    <div class="service-header">
+                        <div>
+                            <div class="service-name">${escapeHtml(proj.name)}</div>
+                            <div class="source-badge">${proj.branch || 'no branch'}</div>
+                        </div>
+                        <div class="project-status-icons">
+                            ${statusIcons.join('')}
+                        </div>
+                    </div>
+                    <div class="service-details">
+                        ${lastMod ? ` + "`" + `<p>Last activity: ${lastMod}</p>` + "`" + ` : ''}
+                    </div>
+                    <div class="service-tags">
+                        ${(proj.tags || []).map(tag => ` + "`" + `<span class="tag ${tag}">${tag}</span>` + "`" + `).join('')}
+                    </div>
+                </div>
+            ` + "`" + `}).join('');
+        }
+
         function escapeHtml(text) {
             if (!text) return '';
             const div = document.createElement('div');
@@ -752,9 +918,17 @@ const indexHTML = `<!DOCTYPE html>
             }
         }
 
+        // Section visibility toggle
+        function toggleSectionVisibility(sectionId, visible) {
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.style.display = visible ? '' : 'none';
+            }
+        }
+
         // Restore collapsed state from localStorage
         function restoreCollapsedState() {
-            ['performance-section', 'services-section', 'terminal-section'].forEach(id => {
+            ['performance-section', 'projects-section', 'services-section', 'terminal-section'].forEach(id => {
                 const collapsed = localStorage.getItem(id + '-collapsed') === 'true';
                 if (collapsed) {
                     document.getElementById(id)?.classList.add('collapsed');
@@ -947,10 +1121,12 @@ const indexHTML = `<!DOCTYPE html>
         // Initial load
         restoreCollapsedState();
         loadConfig().then(() => {
+            loadProjects();
             loadServices();
             loadStats();
             initTerminal();
             // Set up refresh with configured interval
+            setInterval(loadProjects, refreshInterval);
             setInterval(loadServices, refreshInterval);
             // Stats refresh more frequently (every 2 seconds to match server collection)
             setInterval(loadStats, 2000);
@@ -1117,6 +1293,31 @@ const configHTML = `<!DOCTYPE html>
         .save-status.show {
             opacity: 1;
         }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--accent-primary);
+            cursor: pointer;
+        }
+
+        .checkbox-item label {
+            cursor: pointer;
+            margin-bottom: 0;
+        }
     </style>
 </head>
 <body>
@@ -1161,6 +1362,29 @@ const configHTML = `<!DOCTYPE html>
                 <textarea id="custom-head" placeholder="<link href='https://fonts.googleapis.com/...' rel='stylesheet'>"></textarea>
             </div>
 
+            <div class="form-group">
+                <label>Visible Sections</label>
+                <p class="description">Choose which sections to display on the dashboard</p>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="section-performance" checked>
+                        <label for="section-performance">Performance</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="section-projects" checked>
+                        <label for="section-projects">Projects</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="section-services" checked>
+                        <label for="section-services">Services</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="section-terminal" checked>
+                        <label for="section-terminal">Terminal</label>
+                    </div>
+                </div>
+            </div>
+
             <div class="button-row">
                 <button class="btn btn-primary" onclick="saveConfig()">Save Settings</button>
                 <a href="/" class="btn btn-secondary">&larr; Back to Dashboard</a>
@@ -1196,6 +1420,14 @@ const configHTML = `<!DOCTYPE html>
                 document.getElementById('custom-head').value = config.customHeadHtml || '';
                 currentTheme = config.theme;
                 document.body.setAttribute('data-theme', config.theme);
+
+                // Load section visibility
+                if (config.sections) {
+                    document.getElementById('section-performance').checked = config.sections.performance !== false;
+                    document.getElementById('section-projects').checked = config.sections.projects !== false;
+                    document.getElementById('section-services').checked = config.sections.services !== false;
+                    document.getElementById('section-terminal').checked = config.sections.terminal !== false;
+                }
 
                 updateThemeSelection();
             } catch (error) {
@@ -1241,7 +1473,13 @@ const configHTML = `<!DOCTYPE html>
                 refreshInterval: parseInt(document.getElementById('refresh').value, 10),
                 theme: currentTheme,
                 terminalFont: document.getElementById('terminal-font').value,
-                customHeadHtml: document.getElementById('custom-head').value
+                customHeadHtml: document.getElementById('custom-head').value,
+                sections: {
+                    performance: document.getElementById('section-performance').checked,
+                    projects: document.getElementById('section-projects').checked,
+                    services: document.getElementById('section-services').checked,
+                    terminal: document.getElementById('section-terminal').checked
+                }
             };
 
             try {
