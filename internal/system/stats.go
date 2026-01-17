@@ -2,12 +2,24 @@ package system
 
 import (
 	"bufio"
+	"fmt"
 	"os"
+	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
 )
+
+// Process holds information about a running process
+type Process struct {
+	PID        int     `json:"pid"`
+	Name       string  `json:"name"`
+	CPUPercent float64 `json:"cpuPercent"`
+	MemPercent float64 `json:"memPercent"`
+	MemoryMB   float64 `json:"memoryMB"`
+}
 
 // Stats holds current system statistics
 type Stats struct {
@@ -16,6 +28,8 @@ type Stats struct {
 	MemoryUsed    uint64    `json:"memoryUsed"`
 	MemoryPercent float64   `json:"memoryPercent"`
 	Timestamp     time.Time `json:"timestamp"`
+	TopCPU        []Process `json:"topCPU"`
+	TopMemory     []Process `json:"topMemory"`
 }
 
 // History holds historical stats for charting
@@ -32,6 +46,10 @@ type Monitor struct {
 	// For CPU calculation
 	prevIdle  uint64
 	prevTotal uint64
+
+	// For per-process CPU calculation
+	prevProcCPU map[int]uint64
+	prevTime    time.Time
 }
 
 // NewMonitor creates a new system monitor
@@ -41,6 +59,8 @@ func NewMonitor(maxPoints int) *Monitor {
 			Stats:     make([]Stats, 0, maxPoints),
 			MaxPoints: maxPoints,
 		},
+		prevProcCPU: make(map[int]uint64),
+		prevTime:    time.Now(),
 	}
 }
 
@@ -92,6 +112,9 @@ func (m *Monitor) collect() {
 
 	// Get memory usage
 	stats.MemoryTotal, stats.MemoryUsed, stats.MemoryPercent = getMemoryStats()
+
+	// Get top processes
+	stats.TopCPU, stats.TopMemory = m.getTopProcesses(3, stats.MemoryTotal)
 
 	m.mu.Lock()
 	m.history.Stats = append(m.history.Stats, stats)
@@ -193,4 +216,146 @@ func getMemoryStats() (total, used uint64, percent float64) {
 	}
 
 	return memTotal, used, percent
+}
+
+// getTopProcesses returns top N processes by CPU and memory
+func (m *Monitor) getTopProcesses(n int, totalMem uint64) (topCPU, topMem []Process) {
+	now := time.Now()
+	elapsed := now.Sub(m.prevTime).Seconds()
+	if elapsed <= 0 {
+		elapsed = 1
+	}
+
+	// Get number of CPU cores for percentage calculation
+	numCPU := float64(getNumCPU())
+
+	procDir, err := os.Open("/proc")
+	if err != nil {
+		return nil, nil
+	}
+	defer procDir.Close()
+
+	entries, err := procDir.Readdirnames(-1)
+	if err != nil {
+		return nil, nil
+	}
+
+	var processes []Process
+	newProcCPU := make(map[int]uint64)
+
+	for _, entry := range entries {
+		pid, err := strconv.Atoi(entry)
+		if err != nil {
+			continue // Not a PID directory
+		}
+
+		proc := Process{PID: pid}
+
+		// Read process name from /proc/[pid]/comm
+		commPath := filepath.Join("/proc", entry, "comm")
+		if data, err := os.ReadFile(commPath); err == nil {
+			proc.Name = strings.TrimSpace(string(data))
+		} else {
+			continue
+		}
+
+		// Read CPU time from /proc/[pid]/stat
+		statPath := filepath.Join("/proc", entry, "stat")
+		if data, err := os.ReadFile(statPath); err == nil {
+			fields := strings.Fields(string(data))
+			if len(fields) >= 15 {
+				utime, _ := strconv.ParseUint(fields[13], 10, 64)
+				stime, _ := strconv.ParseUint(fields[14], 10, 64)
+				totalTime := utime + stime
+				newProcCPU[pid] = totalTime
+
+				// Calculate CPU percentage
+				if prevTime, ok := m.prevProcCPU[pid]; ok {
+					ticksPerSec := 100.0 // Usually 100 Hz (sysconf(_SC_CLK_TCK))
+					cpuTime := float64(totalTime-prevTime) / ticksPerSec
+					proc.CPUPercent = (cpuTime / elapsed) * 100 / numCPU
+				}
+			}
+		}
+
+		// Read memory from /proc/[pid]/statm
+		statmPath := filepath.Join("/proc", entry, "statm")
+		if data, err := os.ReadFile(statmPath); err == nil {
+			fields := strings.Fields(string(data))
+			if len(fields) >= 2 {
+				// RSS is in pages, convert to bytes (page size is typically 4096)
+				rss, _ := strconv.ParseUint(fields[1], 10, 64)
+				memBytes := rss * 4096
+				proc.MemoryMB = float64(memBytes) / (1024 * 1024)
+				if totalMem > 0 {
+					proc.MemPercent = float64(memBytes) / float64(totalMem) * 100
+				}
+			}
+		}
+
+		processes = append(processes, proc)
+	}
+
+	// Update previous CPU times
+	m.prevProcCPU = newProcCPU
+	m.prevTime = now
+
+	// Sort by CPU and get top N
+	sort.Slice(processes, func(i, j int) bool {
+		return processes[i].CPUPercent > processes[j].CPUPercent
+	})
+	if len(processes) > n {
+		topCPU = make([]Process, n)
+		copy(topCPU, processes[:n])
+	} else {
+		topCPU = processes
+	}
+
+	// Sort by memory and get top N
+	sort.Slice(processes, func(i, j int) bool {
+		return processes[i].MemPercent > processes[j].MemPercent
+	})
+	if len(processes) > n {
+		topMem = make([]Process, n)
+		copy(topMem, processes[:n])
+	} else {
+		topMem = processes
+	}
+
+	return topCPU, topMem
+}
+
+// getNumCPU returns the number of CPU cores
+func getNumCPU() int {
+	file, err := os.Open("/proc/cpuinfo")
+	if err != nil {
+		return 1
+	}
+	defer file.Close()
+
+	count := 0
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		if strings.HasPrefix(scanner.Text(), "processor") {
+			count++
+		}
+	}
+	if count == 0 {
+		return 1
+	}
+	return count
+}
+
+// formatBytes formats bytes to human readable string
+func formatBytes(b uint64) string {
+	const unit = 1024
+	if b < unit {
+		return fmt.Sprintf("%d B", b)
+	}
+	div, exp := uint64(unit), 0
+	for n := b / unit; n >= unit; n /= unit {
+		div *= unit
+		exp++
+	}
+	return fmt.Sprintf("%.1f %cB", float64(b)/float64(div), "KMGTPE"[exp])
 }

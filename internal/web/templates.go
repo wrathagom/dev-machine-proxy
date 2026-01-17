@@ -503,6 +503,151 @@ h1 {
     height: 100%;
 }
 
+.usage-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.5rem;
+}
+
+.usage-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.25rem;
+}
+
+.usage-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.usage-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.usage-subtitle {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.usage-pill {
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+}
+
+.usage-pill.ok {
+    border-color: color-mix(in srgb, var(--accent-secondary) 60%, transparent);
+    color: var(--accent-secondary);
+}
+
+.usage-pill.warn {
+    border-color: color-mix(in srgb, var(--accent-primary) 60%, transparent);
+    color: var(--accent-primary);
+}
+
+.usage-windows {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.usage-window {
+    background: color-mix(in srgb, var(--bg-secondary) 60%, transparent);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 0.85rem;
+}
+
+.usage-window-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 0.35rem;
+}
+
+.usage-window-title {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+}
+
+.usage-window-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--accent-primary);
+}
+
+.usage-window-meta {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
+
+.usage-chart {
+    height: 70px;
+    margin-bottom: 0.5rem;
+}
+
+.usage-chart canvas {
+    width: 100%;
+    height: 100%;
+}
+
+.usage-forecast {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    line-height: 1.3;
+}
+
+.usage-forecast.warn {
+    color: var(--accent-primary);
+}
+
+.top-processes {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border-color);
+    font-size: 0.8rem;
+}
+
+.process-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.25rem 0;
+    color: var(--text-muted);
+}
+
+.process-row:hover {
+    color: var(--text-primary);
+}
+
+.process-name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-right: 0.5rem;
+}
+
+.process-value {
+    font-family: 'Courier New', monospace;
+    color: var(--port-text);
+    min-width: 50px;
+    text-align: right;
+}
+
 .section {
     margin-bottom: 1rem;
 }
@@ -548,6 +693,41 @@ h1 {
     transition: color 0.3s ease;
 }
 
+.section-summary {
+    display: flex;
+    gap: 0.5rem;
+    margin-left: auto;
+    align-items: center;
+}
+
+.summary-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    background: color-mix(in srgb, var(--accent-primary) 15%, transparent);
+    color: var(--accent-primary);
+    font-family: 'Courier New', monospace;
+}
+
+.summary-badge.secondary {
+    background: color-mix(in srgb, var(--accent-secondary) 15%, transparent);
+    color: var(--accent-secondary);
+}
+
+.summary-badge.warning {
+    background: var(--tag-project-bg);
+    color: var(--tag-project-text);
+}
+
+.summary-badge.muted {
+    background: color-mix(in srgb, var(--text-muted) 15%, transparent);
+    color: var(--text-muted);
+}
+
 .section-content {
     overflow: hidden;
     transition: max-height 0.3s ease, opacity 0.3s ease;
@@ -560,6 +740,199 @@ h1 {
 .section.collapsed .section-content {
     max-height: 0;
     opacity: 0;
+}
+
+.daily-tasks-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.daily-tasks-input {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.daily-tasks-input input {
+    flex: 1;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+.daily-tasks-input input:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+}
+
+.daily-tasks-input button {
+    background: var(--accent-primary);
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.daily-tasks-input button svg {
+    width: 20px;
+    height: 20px;
+    stroke: var(--bg-primary);
+}
+
+.daily-tasks-input button:hover {
+    opacity: 0.9;
+}
+
+.daily-tasks-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.daily-task-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.daily-task-item:hover {
+    border-color: var(--accent-primary);
+}
+
+.daily-task-item.completed {
+    opacity: 0.7;
+}
+
+.daily-task-item.completed .task-name {
+    text-decoration: line-through;
+    color: var(--text-muted);
+}
+
+.task-checkbox {
+    width: 22px;
+    height: 22px;
+    border: 2px solid var(--accent-primary);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.task-checkbox:hover {
+    background: color-mix(in srgb, var(--accent-primary) 20%, transparent);
+}
+
+.task-checkbox.checked {
+    background: var(--accent-primary);
+}
+
+.task-checkbox svg {
+    width: 14px;
+    height: 14px;
+    stroke: var(--bg-primary);
+    stroke-width: 3;
+    opacity: 0;
+}
+
+.task-checkbox.checked svg {
+    opacity: 1;
+}
+
+.task-name {
+    flex: 1;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    cursor: text;
+    padding: 0.2rem 0.4rem;
+    margin: -0.2rem -0.4rem;
+    border-radius: 4px;
+    transition: background 0.2s ease;
+}
+
+.task-name:hover {
+    background: color-mix(in srgb, var(--accent-primary) 10%, transparent);
+}
+
+.task-name-input {
+    flex: 1;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    border: 1px solid var(--accent-primary);
+    border-radius: 4px;
+    padding: 0.2rem 0.4rem;
+    outline: none;
+}
+
+.task-streaks {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.streak-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    background: color-mix(in srgb, var(--accent-secondary) 15%, transparent);
+    color: var(--accent-secondary);
+}
+
+.streak-badge.current {
+    background: color-mix(in srgb, var(--accent-primary) 15%, transparent);
+    color: var(--accent-primary);
+}
+
+.streak-badge svg {
+    width: 14px;
+    height: 14px;
+}
+
+.task-delete {
+    opacity: 0;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: opacity 0.2s ease;
+}
+
+.daily-task-item:hover .task-delete {
+    opacity: 0.5;
+}
+
+.task-delete:hover {
+    opacity: 1 !important;
+    background: rgba(255, 0, 0, 0.1);
+}
+
+.task-delete svg {
+    width: 16px;
+    height: 16px;
+    stroke: var(--text-muted);
+}
+
+.daily-tasks-empty {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-muted);
 }
 
 .terminal-container {
@@ -608,6 +981,10 @@ const indexHTML = `<!DOCTYPE html>
                     </svg>
                 </span>
                 <span class="section-title">Performance</span>
+                <div class="section-summary">
+                    <span class="summary-badge" id="summary-cpu">CPU --%</span>
+                    <span class="summary-badge secondary" id="summary-mem">MEM --%</span>
+                </div>
             </div>
             <p class="section-subtitle">Real-time CPU and memory usage (2 minute history)</p>
             <div class="section-content">
@@ -620,6 +997,7 @@ const indexHTML = `<!DOCTYPE html>
                         <div class="stat-chart">
                             <canvas id="cpu-chart"></canvas>
                         </div>
+                        <div class="top-processes" id="top-cpu-processes"></div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-header">
@@ -629,7 +1007,98 @@ const indexHTML = `<!DOCTYPE html>
                         <div class="stat-chart">
                             <canvas id="mem-chart"></canvas>
                         </div>
+                        <div class="top-processes" id="top-mem-processes"></div>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="ai-usage-section">
+            <div class="section-header" onclick="toggleSection('ai-usage-section')">
+                <span class="section-toggle">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </span>
+                <span class="section-title">AI Usage</span>
+                <div class="section-summary">
+                    <span class="summary-badge" id="summary-claude">Claude --%</span>
+                    <span class="summary-badge secondary" id="summary-codex">Codex --%</span>
+                </div>
+            </div>
+            <p class="section-subtitle">Usage from claude-usage and codex-usage</p>
+            <div class="section-content">
+                <div class="usage-grid">
+                    <div class="usage-card">
+                        <div class="usage-header">
+                            <div>
+                                <div class="usage-title">Claude</div>
+                                <div class="usage-subtitle">5-hour and 7-day windows</div>
+                            </div>
+                            <div class="usage-pill" id="claude-status">Loading</div>
+                        </div>
+                        <div class="usage-windows">
+                            <div class="usage-window">
+                                <div class="usage-window-header">
+                                    <span class="usage-window-title">5-hour</span>
+                                    <span class="usage-window-value" id="claude-five-value">--%</span>
+                                </div>
+                                <div class="usage-window-meta" id="claude-five-reset">Reset: --</div>
+                                <div class="usage-chart">
+                                    <canvas id="claude-five-chart"></canvas>
+                                </div>
+                                <div class="usage-forecast" id="claude-five-forecast">--</div>
+                            </div>
+                            <div class="usage-window">
+                                <div class="usage-window-header">
+                                    <span class="usage-window-title">7-day</span>
+                                    <span class="usage-window-value" id="claude-seven-value">--%</span>
+                                </div>
+                                <div class="usage-window-meta" id="claude-seven-reset">Reset: --</div>
+                                <div class="usage-chart">
+                                    <canvas id="claude-seven-chart"></canvas>
+                                </div>
+                                <div class="usage-forecast" id="claude-seven-forecast">--</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="usage-card">
+                        <div class="usage-header">
+                            <div>
+                                <div class="usage-title">Codex</div>
+                                <div class="usage-subtitle">Primary and secondary windows</div>
+                            </div>
+                            <div class="usage-pill" id="codex-status">Loading</div>
+                        </div>
+                        <div class="usage-windows">
+                            <div class="usage-window">
+                                <div class="usage-window-header">
+                                    <span class="usage-window-title">Primary</span>
+                                    <span class="usage-window-value" id="codex-primary-value">--%</span>
+                                </div>
+                                <div class="usage-window-meta" id="codex-primary-reset">Reset: --</div>
+                                <div class="usage-chart">
+                                    <canvas id="codex-primary-chart"></canvas>
+                                </div>
+                                <div class="usage-forecast" id="codex-primary-forecast">--</div>
+                            </div>
+                            <div class="usage-window">
+                                <div class="usage-window-header">
+                                    <span class="usage-window-title">Secondary</span>
+                                    <span class="usage-window-value" id="codex-secondary-value">--%</span>
+                                </div>
+                                <div class="usage-window-meta" id="codex-secondary-reset">Reset: --</div>
+                                <div class="usage-chart">
+                                    <canvas id="codex-secondary-chart"></canvas>
+                                </div>
+                                <div class="usage-forecast" id="codex-secondary-forecast">--</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="empty-state" id="usage-error" style="display:none; margin-top: 1rem;">
+                    <p>Usage data unavailable</p>
+                    <p style="font-size: 0.8rem; margin-top: 0.5rem;" id="usage-error-details"></p>
                 </div>
             </div>
         </div>
@@ -642,6 +1111,10 @@ const indexHTML = `<!DOCTYPE html>
                     </svg>
                 </span>
                 <span class="section-title">Projects</span>
+                <div class="section-summary">
+                    <span class="summary-badge warning" id="summary-projects-dirty" style="display:none">0 changed</span>
+                    <span class="summary-badge muted" id="summary-projects-total">0 total</span>
+                </div>
             </div>
             <p class="section-subtitle">Project folders with git status</p>
             <div class="section-content">
@@ -662,6 +1135,9 @@ const indexHTML = `<!DOCTYPE html>
                     </svg>
                 </span>
                 <span class="section-title">Discovered Services</span>
+                <div class="section-summary">
+                    <span class="summary-badge" id="summary-services">0 services</span>
+                </div>
             </div>
             <p class="section-subtitle">Auto-discovered services running on this machine <span class="refresh-info" id="refresh-info">(refreshes every 30 seconds)</span></p>
             <div class="section-content">
@@ -670,6 +1146,36 @@ const indexHTML = `<!DOCTYPE html>
                         <div class="spinner"></div>
                         <p>Discovering services...</p>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="daily-tasks-section">
+            <div class="section-header" onclick="toggleSection('daily-tasks-section')">
+                <span class="section-toggle">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </span>
+                <span class="section-title">Daily Tasks</span>
+                <div class="section-summary">
+                    <span class="summary-badge warning" id="summary-tasks-remaining" style="display:none">0 remaining</span>
+                    <span class="summary-badge secondary" id="summary-tasks-done" style="display:none">0 done</span>
+                </div>
+            </div>
+            <p class="section-subtitle">Recurring habits and tasks - resets at midnight</p>
+            <div class="section-content">
+                <div class="daily-tasks-container">
+                    <div class="daily-tasks-input">
+                        <input type="text" id="new-task-input" placeholder="Add a new daily task..." onkeypress="if(event.key==='Enter')addDailyTask()">
+                        <button onclick="addDailyTask()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                        </button>
+                    </div>
+                    <div id="daily-tasks" class="daily-tasks-list"></div>
                 </div>
             </div>
         </div>
@@ -720,9 +1226,16 @@ const indexHTML = `<!DOCTYPE html>
                 // Apply section visibility
                 if (config.sections) {
                     toggleSectionVisibility('performance-section', config.sections.performance);
+                    toggleSectionVisibility('ai-usage-section', config.sections.aiUsage);
                     toggleSectionVisibility('projects-section', config.sections.projects);
                     toggleSectionVisibility('services-section', config.sections.services);
+                    toggleSectionVisibility('daily-tasks-section', config.sections.dailyTasks);
                     toggleSectionVisibility('terminal-section', config.sections.terminal);
+                }
+
+                // Apply section order
+                if (config.sectionOrder && config.sectionOrder.length > 0) {
+                    reorderSections(config.sectionOrder);
                 }
 
                 return config;
@@ -749,6 +1262,10 @@ const indexHTML = `<!DOCTYPE html>
 
         function renderServices(services) {
             const container = document.getElementById('services');
+
+            // Update summary badge
+            const count = services ? services.length : 0;
+            document.getElementById('summary-services').textContent = count + ' service' + (count !== 1 ? 's' : '');
 
             if (!services || services.length === 0) {
                 container.innerHTML = ` + "`" + `
@@ -800,6 +1317,21 @@ const indexHTML = `<!DOCTYPE html>
 
         function renderProjects(projects) {
             const container = document.getElementById('projects');
+
+            // Update summary badges
+            const total = projects ? projects.length : 0;
+            const dirty = projects ? projects.filter(p => p.changedFiles > 0 || p.unpushed > 0).length : 0;
+
+            const dirtyBadge = document.getElementById('summary-projects-dirty');
+            const totalBadge = document.getElementById('summary-projects-total');
+
+            if (dirty > 0) {
+                dirtyBadge.textContent = dirty + ' changed';
+                dirtyBadge.style.display = '';
+            } else {
+                dirtyBadge.style.display = 'none';
+            }
+            totalBadge.textContent = total + ' total';
 
             if (!projects || projects.length === 0) {
                 container.innerHTML = ` + "`" + `
@@ -900,6 +1432,178 @@ const indexHTML = `<!DOCTYPE html>
             ` + "`" + `}).join('');
         }
 
+        // Daily Tasks Functions
+        async function loadDailyTasks() {
+            try {
+                const response = await fetch('/api/daily-tasks');
+                const tasks = await response.json();
+                renderDailyTasks(tasks);
+            } catch (error) {
+                console.error('Failed to load daily tasks:', error);
+            }
+        }
+
+        function renderDailyTasks(tasks) {
+            const container = document.getElementById('daily-tasks');
+
+            // Update summary badges
+            const total = tasks ? tasks.length : 0;
+            const done = tasks ? tasks.filter(t => t.completedToday).length : 0;
+            const remaining = total - done;
+
+            const remainingBadge = document.getElementById('summary-tasks-remaining');
+            const doneBadge = document.getElementById('summary-tasks-done');
+
+            if (remaining > 0) {
+                remainingBadge.textContent = remaining + ' remaining';
+                remainingBadge.style.display = '';
+            } else {
+                remainingBadge.style.display = 'none';
+            }
+
+            if (done > 0) {
+                doneBadge.textContent = done + ' done';
+                doneBadge.style.display = '';
+            } else {
+                doneBadge.style.display = 'none';
+            }
+
+            if (!tasks || tasks.length === 0) {
+                container.innerHTML = ` + "`" + `
+                    <div class="daily-tasks-empty">
+                        <p>No daily tasks yet</p>
+                        <p style="font-size: 0.8rem; margin-top: 0.5rem;">Add a task above to start tracking your habits</p>
+                    </div>
+                ` + "`" + `;
+                return;
+            }
+
+            container.innerHTML = tasks.map(task => ` + "`" + `
+                <div class="daily-task-item ${task.completedToday ? 'completed' : ''}" data-id="${task.id}">
+                    <div class="task-checkbox ${task.completedToday ? 'checked' : ''}" onclick="toggleDailyTask('${task.id}')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                    </div>
+                    <span class="task-name" onclick="editDailyTask('${task.id}', this)" title="Click to edit">${escapeHtml(task.name)}</span>
+                    <div class="task-streaks">
+                        ${task.currentStreak > 0 ? ` + "`" + `
+                            <span class="streak-badge current" title="Current streak">
+                                <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                                    <path d="M12 2C6.5 8 4 12 4 15c0 4.4 3.6 8 8 8s8-3.6 8-8c0-3-2.5-7-8-13z"/>
+                                </svg>
+                                ${task.currentStreak}
+                            </span>
+                        ` + "`" + ` : ''}
+                        ${task.longestStreak > 0 ? ` + "`" + `
+                            <span class="streak-badge" title="Longest streak">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M6 9l6 6 6-6"/>
+                                </svg>
+                                ${task.longestStreak}
+                            </span>
+                        ` + "`" + ` : ''}
+                    </div>
+                    <div class="task-delete" onclick="deleteDailyTask('${task.id}')" title="Delete task">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </div>
+                </div>
+            ` + "`" + `).join('');
+        }
+
+        async function addDailyTask() {
+            const input = document.getElementById('new-task-input');
+            const name = input.value.trim();
+            if (!name) return;
+
+            try {
+                await fetch('/api/daily-tasks', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name })
+                });
+                input.value = '';
+                loadDailyTasks();
+            } catch (error) {
+                console.error('Failed to add task:', error);
+            }
+        }
+
+        async function toggleDailyTask(id) {
+            try {
+                await fetch('/api/daily-tasks/toggle', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id })
+                });
+                loadDailyTasks();
+            } catch (error) {
+                console.error('Failed to toggle task:', error);
+            }
+        }
+
+        async function deleteDailyTask(id) {
+            if (!confirm('Delete this daily task? This will also delete its streak history.')) return;
+
+            try {
+                await fetch('/api/daily-tasks', {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id })
+                });
+                loadDailyTasks();
+            } catch (error) {
+                console.error('Failed to delete task:', error);
+            }
+        }
+
+        function editDailyTask(id, element) {
+            const currentName = element.textContent;
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'task-name-input';
+            input.value = currentName;
+
+            const saveEdit = async () => {
+                const newName = input.value.trim();
+                if (newName && newName !== currentName) {
+                    try {
+                        await fetch('/api/daily-tasks', {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ id, name: newName })
+                        });
+                        loadDailyTasks();
+                    } catch (error) {
+                        console.error('Failed to update task:', error);
+                        loadDailyTasks();
+                    }
+                } else {
+                    loadDailyTasks();
+                }
+            };
+
+            input.addEventListener('blur', saveEdit);
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    input.blur();
+                }
+            });
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    loadDailyTasks();
+                }
+            });
+
+            element.replaceWith(input);
+            input.focus();
+            input.select();
+        }
+
         function escapeHtml(text) {
             if (!text) return '';
             const div = document.createElement('div');
@@ -926,9 +1630,31 @@ const indexHTML = `<!DOCTYPE html>
             }
         }
 
+        // Section order mapping (config key -> section id)
+        const sectionIdMap = {
+            'performance': 'performance-section',
+            'aiUsage': 'ai-usage-section',
+            'projects': 'projects-section',
+            'services': 'services-section',
+            'dailyTasks': 'daily-tasks-section',
+            'terminal': 'terminal-section'
+        };
+
+        // Reorder sections based on config order
+        function reorderSections(order) {
+            const container = document.querySelector('.container');
+            if (!container) return;
+
+            // Get all section elements in order specified
+            const sections = order.map(key => document.getElementById(sectionIdMap[key])).filter(Boolean);
+
+            // Append sections in order (this moves them)
+            sections.forEach(section => container.appendChild(section));
+        }
+
         // Restore collapsed state from localStorage
         function restoreCollapsedState() {
-            ['performance-section', 'projects-section', 'services-section', 'terminal-section'].forEach(id => {
+            ['performance-section', 'ai-usage-section', 'projects-section', 'services-section', 'daily-tasks-section', 'terminal-section'].forEach(id => {
                 const collapsed = localStorage.getItem(id + '-collapsed') === 'true';
                 if (collapsed) {
                     document.getElementById(id)?.classList.add('collapsed');
@@ -1011,6 +1737,10 @@ const indexHTML = `<!DOCTYPE html>
                     document.getElementById('cpu-value').textContent = latest.cpuPercent.toFixed(1) + '%';
                     document.getElementById('mem-value').textContent = latest.memoryPercent.toFixed(1) + '%';
 
+                    // Update summary badges
+                    document.getElementById('summary-cpu').textContent = 'CPU ' + latest.cpuPercent.toFixed(0) + '%';
+                    document.getElementById('summary-mem').textContent = 'MEM ' + latest.memoryPercent.toFixed(0) + '%';
+
                     // Get accent color from CSS
                     const style = getComputedStyle(document.body);
                     const accentPrimary = style.getPropertyValue('--accent-primary').trim() || '#00d9ff';
@@ -1018,10 +1748,210 @@ const indexHTML = `<!DOCTYPE html>
 
                     drawChart('cpu-chart', cpuData, accentPrimary);
                     drawChart('mem-chart', memData, accentSecondary);
+
+                    // Render top processes
+                    renderTopProcesses('top-cpu-processes', latest.topCPU, 'cpu');
+                    renderTopProcesses('top-mem-processes', latest.topMemory, 'mem');
                 }
             } catch (error) {
                 console.error('Failed to load stats:', error);
             }
+        }
+
+        async function loadUsage() {
+            try {
+                const response = await fetch('/api/usage');
+                const payload = await response.json();
+                renderUsage(payload);
+            } catch (error) {
+                console.error('Failed to load usage:', error);
+                showUsageError('Failed to load usage data.');
+            }
+        }
+
+        function renderUsage(payload) {
+            const errorBox = document.getElementById('usage-error');
+            const errorDetails = document.getElementById('usage-error-details');
+
+            if (!payload || !payload.latest) {
+                showUsageError('No usage data available.');
+                return;
+            }
+
+            if (payload.latest.errors && payload.latest.errors.length > 0) {
+                showUsageError(payload.latest.errors.join(' | '));
+            } else {
+                errorBox.style.display = 'none';
+                errorDetails.textContent = '';
+            }
+
+            const style = getComputedStyle(document.body);
+            const accentPrimary = style.getPropertyValue('--accent-primary').trim() || '#00d9ff';
+            const accentSecondary = style.getPropertyValue('--accent-secondary').trim() || '#00ff88';
+
+            if (payload.latest.claude) {
+                const claude = payload.latest.claude;
+                updateWindowDisplay({
+                    prefix: 'claude-five',
+                    windowData: claude.fiveHour,
+                    history: payload.history ? payload.history.claudeFiveHour : [],
+                    color: accentPrimary
+                });
+                updateWindowDisplay({
+                    prefix: 'claude-seven',
+                    windowData: claude.sevenDay,
+                    history: payload.history ? payload.history.claudeSevenDay : [],
+                    color: accentPrimary
+                });
+
+                document.getElementById('summary-claude').textContent =
+                    'Claude ' + formatPercent(claude.fiveHour.current.usedPercent);
+                setUsagePill('claude-status', claude.fiveHour.forecast);
+            }
+
+            if (payload.latest.codex) {
+                const codex = payload.latest.codex;
+                updateWindowDisplay({
+                    prefix: 'codex-primary',
+                    windowData: codex.primary,
+                    history: payload.history ? payload.history.codexPrimary : [],
+                    color: accentSecondary
+                });
+
+                if (codex.secondary) {
+                    updateWindowDisplay({
+                        prefix: 'codex-secondary',
+                        windowData: codex.secondary,
+                        history: payload.history ? payload.history.codexSecondary : [],
+                        color: accentSecondary
+                    });
+                } else {
+                    setWindowUnavailable('codex-secondary');
+                }
+
+                document.getElementById('summary-codex').textContent =
+                    'Codex ' + formatPercent(codex.primary.current.usedPercent);
+                setUsagePill('codex-status', codex.primary.forecast);
+            }
+        }
+
+        function updateWindowDisplay({ prefix, windowData, history, color }) {
+            if (!windowData || !windowData.current) {
+                setWindowUnavailable(prefix);
+                return;
+            }
+
+            document.getElementById(prefix + '-value').textContent =
+                formatPercent(windowData.current.usedPercent);
+            document.getElementById(prefix + '-reset').textContent =
+                'Reset: ' + formatReset(windowData.current.resetAt, windowData.current.resetInSeconds);
+            document.getElementById(prefix + '-forecast').textContent =
+                formatForecast(windowData.forecast, windowData.current.resetAt);
+            document.getElementById(prefix + '-forecast').classList.toggle('warn', windowData.forecast && windowData.forecast.willExhaust);
+
+            const series = (history || []).map(point => point.value);
+            drawChart(prefix + '-chart', series, color);
+        }
+
+        function setWindowUnavailable(prefix) {
+            document.getElementById(prefix + '-value').textContent = 'N/A';
+            document.getElementById(prefix + '-reset').textContent = 'Reset: --';
+            document.getElementById(prefix + '-forecast').textContent = 'Forecast unavailable';
+        }
+
+        function setUsagePill(elementId, forecast) {
+            const pill = document.getElementById(elementId);
+            if (!pill) return;
+            if (forecast && forecast.willExhaust) {
+                pill.textContent = 'At risk';
+                pill.classList.add('warn');
+                pill.classList.remove('ok');
+            } else {
+                pill.textContent = 'On track';
+                pill.classList.add('ok');
+                pill.classList.remove('warn');
+            }
+        }
+
+        function formatPercent(value) {
+            if (typeof value !== 'number') return '--%';
+            return value.toFixed(0) + '%';
+        }
+
+        function formatReset(resetAt, resetInSeconds) {
+            if (resetInSeconds && resetInSeconds > 0) {
+                return 'in ' + formatDuration(resetInSeconds);
+            }
+            if (resetAt) {
+                const date = new Date(resetAt);
+                if (!isNaN(date)) {
+                    return date.toLocaleString();
+                }
+            }
+            return '--';
+        }
+
+        function formatForecast(forecast, resetAt) {
+            if (!forecast) return 'Forecast unavailable';
+
+            const rate = forecast.ratePerHour;
+            if (!rate || rate <= 0) {
+                return 'Stable usage';
+            }
+
+            if (forecast.willExhaust && forecast.exhaustAt) {
+                const exhaustAt = new Date(forecast.exhaustAt);
+                return 'Exhaust in ' + formatDuration(forecast.hoursToExhaust * 3600) +
+                    ' (' + exhaustAt.toLocaleTimeString() + ')';
+            }
+
+            if (resetAt) {
+                const resetDate = new Date(resetAt);
+                if (!isNaN(resetDate)) {
+                    return 'Projected ' + forecast.projectedAtReset.toFixed(0) + '% at reset';
+                }
+            }
+
+            return 'Projected ' + forecast.projectedAtReset.toFixed(0) + '% at reset';
+        }
+
+        function formatDuration(seconds) {
+            if (!seconds || seconds < 0) return '--';
+            const rounded = Math.max(0, Math.floor(seconds));
+            const hours = Math.floor(rounded / 3600);
+            const minutes = Math.floor((rounded % 3600) / 60);
+            if (hours > 0 && minutes > 0) return hours + 'h ' + minutes + 'm';
+            if (hours > 0) return hours + 'h';
+            return minutes + 'm';
+        }
+
+        function showUsageError(message) {
+            const errorBox = document.getElementById('usage-error');
+            const errorDetails = document.getElementById('usage-error-details');
+            if (errorBox && errorDetails) {
+                errorDetails.textContent = message;
+                errorBox.style.display = '';
+            }
+        }
+
+        function renderTopProcesses(containerId, processes, type) {
+            const container = document.getElementById(containerId);
+            if (!container || !processes || processes.length === 0) {
+                if (container) container.innerHTML = '';
+                return;
+            }
+
+            container.innerHTML = processes.map(proc => {
+                const value = type === 'cpu'
+                    ? proc.cpuPercent.toFixed(1) + '%'
+                    : proc.memoryMB.toFixed(0) + ' MB';
+                return ` + "`" + `
+                    <div class="process-row" title="PID: ${proc.pid}">
+                        <span class="process-name">${escapeHtml(proc.name)}</span>
+                        <span class="process-value">${value}</span>
+                    </div>
+                ` + "`" + `;
+            }).join('');
         }
 
         // Terminal initialization
@@ -1124,12 +2054,15 @@ const indexHTML = `<!DOCTYPE html>
             loadProjects();
             loadServices();
             loadStats();
+            loadDailyTasks();
+            loadUsage();
             initTerminal();
             // Set up refresh with configured interval
             setInterval(loadProjects, refreshInterval);
             setInterval(loadServices, refreshInterval);
             // Stats refresh more frequently (every 2 seconds to match server collection)
             setInterval(loadStats, 2000);
+            setInterval(loadUsage, 60000);
         });
     </script>
 </body>
@@ -1318,6 +2251,64 @@ const configHTML = `<!DOCTYPE html>
             cursor: pointer;
             margin-bottom: 0;
         }
+
+        .section-order-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .section-order-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            cursor: grab;
+            transition: all 0.2s ease;
+        }
+
+        .section-order-item:hover {
+            border-color: var(--accent-primary);
+        }
+
+        .section-order-item.dragging {
+            opacity: 0.5;
+            border-color: var(--accent-primary);
+            background: color-mix(in srgb, var(--accent-primary) 10%, var(--bg-secondary));
+        }
+
+        .section-order-item.drag-over {
+            border-color: var(--accent-primary);
+            border-style: dashed;
+        }
+
+        .drag-handle {
+            display: flex;
+            align-items: center;
+            color: var(--text-muted);
+            cursor: grab;
+        }
+
+        .drag-handle svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .section-order-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--accent-primary);
+            cursor: pointer;
+        }
+
+        .section-order-item label {
+            flex: 1;
+            cursor: pointer;
+            margin-bottom: 0;
+        }
     </style>
 </head>
 <body>
@@ -1363,22 +2354,48 @@ const configHTML = `<!DOCTYPE html>
             </div>
 
             <div class="form-group">
-                <label>Visible Sections</label>
-                <p class="description">Choose which sections to display on the dashboard</p>
-                <div class="checkbox-group">
-                    <div class="checkbox-item">
+                <label>Section Order & Visibility</label>
+                <p class="description">Drag to reorder, toggle visibility with checkboxes</p>
+                <div id="section-order-list" class="section-order-list">
+                    <div class="section-order-item" data-section="performance" draggable="true">
+                        <span class="drag-handle">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 5h2v2H9zm4 0h2v2h-2zM9 9h2v2H9zm4 0h2v2h-2zm-4 4h2v2H9zm4 0h2v2h-2zm-4 4h2v2H9zm4 0h2v2h-2z"/></svg>
+                        </span>
                         <input type="checkbox" id="section-performance" checked>
                         <label for="section-performance">Performance</label>
                     </div>
-                    <div class="checkbox-item">
+                    <div class="section-order-item" data-section="aiUsage" draggable="true">
+                        <span class="drag-handle">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 5h2v2H9zm4 0h2v2h-2zM9 9h2v2H9zm4 0h2v2h-2zm-4 4h2v2H9zm4 0h2v2h-2zm-4 4h2v2H9zm4 0h2v2h-2z"/></svg>
+                        </span>
+                        <input type="checkbox" id="section-ai-usage" checked>
+                        <label for="section-ai-usage">AI Usage</label>
+                    </div>
+                    <div class="section-order-item" data-section="projects" draggable="true">
+                        <span class="drag-handle">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 5h2v2H9zm4 0h2v2h-2zM9 9h2v2H9zm4 0h2v2h-2zm-4 4h2v2H9zm4 0h2v2h-2zm-4 4h2v2H9zm4 0h2v2h-2z"/></svg>
+                        </span>
                         <input type="checkbox" id="section-projects" checked>
                         <label for="section-projects">Projects</label>
                     </div>
-                    <div class="checkbox-item">
+                    <div class="section-order-item" data-section="services" draggable="true">
+                        <span class="drag-handle">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 5h2v2H9zm4 0h2v2h-2zM9 9h2v2H9zm4 0h2v2h-2zm-4 4h2v2H9zm4 0h2v2h-2zm-4 4h2v2H9zm4 0h2v2h-2z"/></svg>
+                        </span>
                         <input type="checkbox" id="section-services" checked>
                         <label for="section-services">Services</label>
                     </div>
-                    <div class="checkbox-item">
+                    <div class="section-order-item" data-section="dailyTasks" draggable="true">
+                        <span class="drag-handle">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 5h2v2H9zm4 0h2v2h-2zM9 9h2v2H9zm4 0h2v2h-2zm-4 4h2v2H9zm4 0h2v2h-2zm-4 4h2v2H9zm4 0h2v2h-2z"/></svg>
+                        </span>
+                        <input type="checkbox" id="section-daily-tasks" checked>
+                        <label for="section-daily-tasks">Daily Tasks</label>
+                    </div>
+                    <div class="section-order-item" data-section="terminal" draggable="true">
+                        <span class="drag-handle">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 5h2v2H9zm4 0h2v2h-2zM9 9h2v2H9zm4 0h2v2h-2zm-4 4h2v2H9zm4 0h2v2h-2zm-4 4h2v2H9zm4 0h2v2h-2z"/></svg>
+                        </span>
                         <input type="checkbox" id="section-terminal" checked>
                         <label for="section-terminal">Terminal</label>
                     </div>
@@ -1424,9 +2441,16 @@ const configHTML = `<!DOCTYPE html>
                 // Load section visibility
                 if (config.sections) {
                     document.getElementById('section-performance').checked = config.sections.performance !== false;
+                    document.getElementById('section-ai-usage').checked = config.sections.aiUsage !== false;
                     document.getElementById('section-projects').checked = config.sections.projects !== false;
                     document.getElementById('section-services').checked = config.sections.services !== false;
+                    document.getElementById('section-daily-tasks').checked = config.sections.dailyTasks !== false;
                     document.getElementById('section-terminal').checked = config.sections.terminal !== false;
+                }
+
+                // Load section order
+                if (config.sectionOrder && config.sectionOrder.length > 0) {
+                    reorderSectionItems(config.sectionOrder);
                 }
 
                 updateThemeSelection();
@@ -1476,10 +2500,13 @@ const configHTML = `<!DOCTYPE html>
                 customHeadHtml: document.getElementById('custom-head').value,
                 sections: {
                     performance: document.getElementById('section-performance').checked,
+                    aiUsage: document.getElementById('section-ai-usage').checked,
                     projects: document.getElementById('section-projects').checked,
                     services: document.getElementById('section-services').checked,
+                    dailyTasks: document.getElementById('section-daily-tasks').checked,
                     terminal: document.getElementById('section-terminal').checked
-                }
+                },
+                sectionOrder: getSectionOrder()
             };
 
             try {
@@ -1500,9 +2527,90 @@ const configHTML = `<!DOCTYPE html>
             }
         }
 
+        // Get current section order from DOM
+        function getSectionOrder() {
+            const list = document.getElementById('section-order-list');
+            return Array.from(list.querySelectorAll('.section-order-item')).map(item => item.dataset.section);
+        }
+
+        // Reorder section items in settings based on config
+        function reorderSectionItems(order) {
+            const list = document.getElementById('section-order-list');
+            order.forEach(sectionKey => {
+                const item = list.querySelector(` + "`" + `[data-section="${sectionKey}"]` + "`" + `);
+                if (item) list.appendChild(item);
+            });
+        }
+
+        // Drag and drop functionality
+        let draggedItem = null;
+
+        function initDragAndDrop() {
+            const list = document.getElementById('section-order-list');
+            const items = list.querySelectorAll('.section-order-item');
+
+            items.forEach(item => {
+                item.addEventListener('dragstart', handleDragStart);
+                item.addEventListener('dragend', handleDragEnd);
+                item.addEventListener('dragover', handleDragOver);
+                item.addEventListener('dragenter', handleDragEnter);
+                item.addEventListener('dragleave', handleDragLeave);
+                item.addEventListener('drop', handleDrop);
+            });
+        }
+
+        function handleDragStart(e) {
+            draggedItem = this;
+            this.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function handleDragEnd(e) {
+            this.classList.remove('dragging');
+            document.querySelectorAll('.section-order-item').forEach(item => {
+                item.classList.remove('drag-over');
+            });
+            draggedItem = null;
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        }
+
+        function handleDragEnter(e) {
+            e.preventDefault();
+            if (this !== draggedItem) {
+                this.classList.add('drag-over');
+            }
+        }
+
+        function handleDragLeave(e) {
+            this.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+
+            if (draggedItem && this !== draggedItem) {
+                const list = document.getElementById('section-order-list');
+                const items = Array.from(list.querySelectorAll('.section-order-item'));
+                const draggedIndex = items.indexOf(draggedItem);
+                const targetIndex = items.indexOf(this);
+
+                if (draggedIndex < targetIndex) {
+                    this.parentNode.insertBefore(draggedItem, this.nextSibling);
+                } else {
+                    this.parentNode.insertBefore(draggedItem, this);
+                }
+            }
+        }
+
         // Load everything
         loadThemes();
         loadConfig();
+        initDragAndDrop();
     </script>
 </body>
 </html>`

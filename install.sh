@@ -48,6 +48,7 @@ After=network.target
 [Service]
 Type=simple
 ExecStart=$INSTALL_PATH -projects $PROJECTS_DIR
+Environment=PATH=/usr/local/bin:/usr/bin:/bin:$HOME/.local/bin
 Restart=on-failure
 RestartSec=5
 StandardOutput=journal

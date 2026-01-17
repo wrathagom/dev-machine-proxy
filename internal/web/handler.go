@@ -12,6 +12,7 @@ import (
 	"dev-machine-proxy/internal/projects"
 	"dev-machine-proxy/internal/system"
 	"dev-machine-proxy/internal/terminal"
+	"dev-machine-proxy/internal/usage"
 )
 
 // Handler serves the web dashboard
@@ -19,17 +20,19 @@ type Handler struct {
 	discoverer     *discovery.Discoverer
 	configMgr      *config.Manager
 	sysMonitor     *system.Monitor
+	usageMonitor   *usage.Monitor
 	termHandler    *terminal.Handler
 	projectScanner *projects.Scanner
 	mux            *http.ServeMux
 }
 
 // NewHandler creates a new web handler
-func NewHandler(d *discovery.Discoverer, cfg *config.Manager, mon *system.Monitor, projectsDir string) *Handler {
+func NewHandler(d *discovery.Discoverer, cfg *config.Manager, mon *system.Monitor, usageMon *usage.Monitor, projectsDir string) *Handler {
 	h := &Handler{
 		discoverer:     d,
 		configMgr:      cfg,
 		sysMonitor:     mon,
+		usageMonitor:   usageMon,
 		termHandler:    terminal.NewHandler(),
 		projectScanner: projects.NewScanner(projectsDir),
 		mux:            http.NewServeMux(),
@@ -42,7 +45,10 @@ func NewHandler(d *discovery.Discoverer, cfg *config.Manager, mon *system.Monito
 	h.mux.HandleFunc("/api/config", h.handleAPIConfig)
 	h.mux.HandleFunc("/api/themes", h.handleAPIThemes)
 	h.mux.HandleFunc("/api/stats", h.handleAPIStats)
+	h.mux.HandleFunc("/api/usage", h.handleAPIUsage)
 	h.mux.HandleFunc("/api/projects", h.handleAPIProjects)
+	h.mux.HandleFunc("/api/daily-tasks", h.handleAPIDailyTasks)
+	h.mux.HandleFunc("/api/daily-tasks/toggle", h.handleAPIDailyTaskToggle)
 	h.mux.HandleFunc("/ws/terminal", h.termHandler.ServeWS)
 
 	return h
@@ -129,11 +135,130 @@ func (h *Handler) handleAPIStats(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(h.sysMonitor.GetHistory())
 }
 
+// handleAPIUsage returns AI usage history and forecasts
+func (h *Handler) handleAPIUsage(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(h.usageMonitor.GetResponse())
+}
+
 // handleAPIProjects returns project information
 func (h *Handler) handleAPIProjects(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	projects := h.projectScanner.Scan()
 	json.NewEncoder(w).Encode(projects)
+}
+
+// handleAPIDailyTasks handles CRUD for daily tasks
+func (h *Handler) handleAPIDailyTasks(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	switch r.Method {
+	case http.MethodGet:
+		tasks := h.configMgr.GetDailyTasks()
+		today := todayString()
+
+		// Build response with today's completion status
+		type taskResponse struct {
+			ID             string `json:"id"`
+			Name           string `json:"name"`
+			CompletedToday bool   `json:"completedToday"`
+			CurrentStreak  int    `json:"currentStreak"`
+			LongestStreak  int    `json:"longestStreak"`
+		}
+
+		response := make([]taskResponse, len(tasks))
+		for i, t := range tasks {
+			response[i] = taskResponse{
+				ID:             t.ID,
+				Name:           t.Name,
+				CompletedToday: t.Completions[today],
+				CurrentStreak:  t.CurrentStreak,
+				LongestStreak:  t.LongestStreak,
+			}
+		}
+		json.NewEncoder(w).Encode(response)
+
+	case http.MethodPost:
+		var req struct {
+			Name string `json:"name"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		if req.Name == "" {
+			http.Error(w, "name is required", http.StatusBadRequest)
+			return
+		}
+		task, err := h.configMgr.AddDailyTask(req.Name)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		json.NewEncoder(w).Encode(task)
+
+	case http.MethodPut:
+		var req struct {
+			ID   string `json:"id"`
+			Name string `json:"name"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		if err := h.configMgr.UpdateDailyTask(req.ID, req.Name); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+
+	case http.MethodDelete:
+		var req struct {
+			ID string `json:"id"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		if err := h.configMgr.DeleteDailyTask(req.ID); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+
+	default:
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	}
+}
+
+// handleAPIDailyTaskToggle toggles a task's completion for today
+func (h *Handler) handleAPIDailyTaskToggle(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var req struct {
+		ID string `json:"id"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	completed, err := h.configMgr.ToggleDailyTaskCompletion(req.ID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]bool{"completed": completed})
+}
+
+// todayString returns today's date as YYYY-MM-DD (for handler use)
+func todayString() string {
+	return config.TodayString()
 }
 
 func adjustServiceURLs(services []discovery.Service, r *http.Request) []discovery.Service {

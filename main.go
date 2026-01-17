@@ -10,6 +10,7 @@ import (
 	"dev-machine-proxy/internal/config"
 	"dev-machine-proxy/internal/discovery"
 	"dev-machine-proxy/internal/system"
+	"dev-machine-proxy/internal/usage"
 	"dev-machine-proxy/internal/web"
 )
 
@@ -27,6 +28,11 @@ func main() {
 	sysMonitor := system.NewMonitor(60)
 	sysMonitor.Start(2 * time.Second)
 	log.Println("System monitor started")
+
+	// Start AI usage monitor (collect every 5 minutes, keep 7 days of history)
+	usageMonitor := usage.NewMonitor()
+	usageMonitor.Start(5 * time.Minute)
+	log.Println("AI usage monitor started")
 
 	// Create the service discoverer
 	disc := discovery.New(*projectsDir)
@@ -51,7 +57,7 @@ func main() {
 	}()
 
 	// Set up web server
-	handler := web.NewHandler(disc, configMgr, sysMonitor, *projectsDir)
+	handler := web.NewHandler(disc, configMgr, sysMonitor, usageMonitor, *projectsDir)
 
 	addr := fmt.Sprintf(":%d", *port)
 	log.Printf("Starting dashboard on http://localhost%s", addr)

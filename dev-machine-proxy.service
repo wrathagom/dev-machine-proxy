@@ -6,6 +6,7 @@ Wants=docker.service
 [Service]
 Type=simple
 User=%i
+Environment=PATH=/usr/local/bin:/usr/bin:/bin:%h/.local/bin
 ExecStart=/usr/local/bin/dev-machine-proxy -projects %h/Projects
 Restart=on-failure
 RestartSec=5
@@ -17,6 +18,7 @@ NoNewPrivileges=true
 ProtectSystem=strict
 ProtectHome=read-only
 PrivateTmp=true
+ReadWritePaths=%h/.config/dev-machine-proxy
 
 [Install]
 WantedBy=multi-user.target
