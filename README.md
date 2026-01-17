@@ -11,9 +11,12 @@ Perfect for use with Netbird or other VPN solutions - access all your dev servic
 - **Project folder scanning** - Searches config files (docker-compose, .env, package.json, etc.) for port references
 - **HTTP probing** - Connects to ports to detect HTTP services and extract titles/server info
 - **Known port database** - Maps common ports (3000, 5432, 8080, etc.) to service names
-- **System monitoring** - Real-time CPU and memory usage charts
+- **System monitoring** - Real-time CPU and memory usage charts with top processes by CPU/memory
+- **AI usage tracking** - Monitor Claude and Codex rate limit usage with forecasting (requires optional CLI tools)
+- **Daily tasks** - Track recurring habits with streak counting and daily reset
 - **Web terminal** - Built-in shell access via xterm.js
 - **Themeable** - 11 color themes including Catppuccin, Dracula, Nord, and more
+- **Customizable layout** - Drag-and-drop section ordering, show/hide sections
 - **Auto-refresh** - Dashboard updates every 30 seconds (configurable)
 
 ## Installation
@@ -34,6 +37,19 @@ The install script will:
 - Install to `/usr/local/bin/`
 - Set up a systemd user service
 - Enable the service to start at boot
+
+## Optional Dependencies
+
+### AI Usage Tracking
+
+The AI Usage section displays rate limit information for Claude and Codex. This feature requires external CLI tools to be installed and available in your PATH:
+
+- **`claude-usage`** - For Claude Code usage tracking. Must output JSON with `five_hour` and `seven_day` utilization data.
+- **`codex-usage`** - For Codex CLI usage tracking. Must output JSON with `rate_limit.primary_window` data.
+
+If these tools are not installed, the AI Usage section will show an error message but the rest of the dashboard will function normally. You can hide the section entirely via the Settings page.
+
+The monitor collects usage data every 5 minutes and maintains 7 days of history for forecasting. Data is stored in `~/.config/dev-machine-proxy/usage-history.json`.
 
 ## Usage
 
@@ -109,7 +125,9 @@ Services are identified using multiple sources, in priority order:
 
 ## Configuration
 
-To change settings after installation, edit the service file:
+### Service Configuration
+
+To change command-line options after installation, edit the service file:
 
 ```bash
 # Edit the service
@@ -119,6 +137,25 @@ nano ~/.config/systemd/user/dev-machine-proxy.service
 systemctl --user daemon-reload
 systemctl --user restart dev-machine-proxy
 ```
+
+### Dashboard Settings
+
+Access the Settings page via the gear icon in the dashboard header. You can configure:
+
+- **Theme** - Choose from 11 color themes
+- **Terminal font** - Custom font-family for the terminal
+- **Section visibility** - Show/hide individual dashboard sections
+- **Section order** - Drag and drop to reorder sections
+
+Settings are stored in `~/.config/dev-machine-proxy/config.json`.
+
+### Data Storage
+
+The application stores data in `~/.config/dev-machine-proxy/`:
+
+- `config.json` - Dashboard settings (theme, sections, etc.)
+- `daily-tasks.json` - Daily tasks and completion history
+- `usage-history.json` - AI usage metrics history (7 days)
 
 ## Updating
 
@@ -191,7 +228,7 @@ The Terminal section provides a web-based shell using xterm.js. It connects via 
 
 ### Can I disable the terminal?
 
-Currently no - the terminal is always available. If you need to disable it, you can modify the source code to remove the `/ws/terminal` route and the terminal section from the HTML template.
+Yes - go to Settings (gear icon) and uncheck "Terminal" in the section visibility options. You can also hide any other section you don't need.
 
 ### Why does service X show as "unknown"?
 
@@ -202,6 +239,28 @@ The discovery system works in priority order: Docker labels > project scanning >
 - Uses a non-standard port
 
 You can improve detection by ensuring Docker containers have proper labels or by organizing your projects in the scanned directory.
+
+### What are the AI Usage forecasts?
+
+The AI Usage section tracks your Claude and Codex rate limit consumption over time. Based on your usage pattern over the last few hours, it forecasts:
+
+- **Projected usage at reset** - What percentage you'll likely be at when the window resets
+- **Time to exhaustion** - If you're on pace to hit 100%, when that will happen
+- **Status pill** - "On track" (green) if you'll be fine, "At risk" (orange) if you might hit the limit
+
+This helps you pace your AI tool usage throughout the day.
+
+### How do Daily Tasks work?
+
+Daily Tasks is a simple habit tracker built into the dashboard:
+
+- Add tasks you want to complete every day
+- Check them off as you complete them
+- Tasks reset automatically at midnight
+- Streaks track consecutive days of completion
+- "Current streak" shows your active streak, "Longest streak" shows your record
+
+Task data persists in `~/.config/dev-machine-proxy/daily-tasks.json`.
 
 ## License
 
