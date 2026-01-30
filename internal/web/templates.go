@@ -465,6 +465,55 @@ h1 {
     margin-bottom: 1rem;
 }
 
+.section-controls {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0 0 0.5rem;
+}
+
+.section-controls label {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.section-controls select {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    border-radius: 8px;
+    padding: 0.3rem 0.6rem;
+    font-size: 0.75rem;
+}
+
+.favorite-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--text-muted);
+    padding: 0.2rem 0.5rem;
+    font-size: 0.7rem;
+    cursor: pointer;
+    transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.favorite-button.active {
+    color: var(--accent-secondary);
+    border-color: color-mix(in srgb, var(--accent-secondary) 50%, transparent);
+    background: color-mix(in srgb, var(--accent-secondary) 12%, transparent);
+}
+
+.favorite-button svg {
+    width: 14px;
+    height: 14px;
+}
+
 .stat-card {
     background: var(--card-bg);
     border: 1px solid var(--border-color);
@@ -1118,6 +1167,18 @@ const indexHTML = `<!DOCTYPE html>
             </div>
             <p class="section-subtitle">Project folders with git status</p>
             <div class="section-content">
+                <div class="section-controls">
+                    <label for="projects-sort">Sort by</label>
+                    <select id="projects-sort" onchange="updateProjectSort(this.value)">
+                        <option value="lastActivityDesc" selected>Last activity (newest)</option>
+                        <option value="lastActivityAsc">Last activity (oldest)</option>
+                    </select>
+                    <label for="projects-filter">Filter</label>
+                    <select id="projects-filter" onchange="updateProjectFilter(this.value)">
+                        <option value="all" selected>All projects</option>
+                        <option value="favorites">Favorites only</option>
+                    </select>
+                </div>
                 <div id="projects" class="services-grid">
                     <div class="loading">
                         <div class="spinner"></div>
@@ -1300,11 +1361,17 @@ const indexHTML = `<!DOCTYPE html>
             ` + "`" + `).join('');
         }
 
+        let projectSort = 'lastActivityDesc';
+        let projectFilter = 'all';
+        let cachedProjects = [];
+        const favoritesStorageKey = 'projects:favorites';
+
         async function loadProjects() {
             try {
                 const response = await fetch('/api/projects');
                 const projects = await response.json();
-                renderProjects(projects);
+                cachedProjects = projects || [];
+                renderProjects(cachedProjects);
             } catch (error) {
                 console.error('Failed to load projects:', error);
                 document.getElementById('projects').innerHTML = ` + "`" + `
@@ -1315,8 +1382,66 @@ const indexHTML = `<!DOCTYPE html>
             }
         }
 
+        function updateProjectSort(value) {
+            projectSort = value;
+            renderProjects(cachedProjects);
+        }
+
+        function updateProjectFilter(value) {
+            projectFilter = value;
+            renderProjects(cachedProjects);
+        }
+
+        function getFavorites() {
+            try {
+                const raw = localStorage.getItem(favoritesStorageKey);
+                const parsed = raw ? JSON.parse(raw) : [];
+                return Array.isArray(parsed) ? new Set(parsed) : new Set();
+            } catch {
+                return new Set();
+            }
+        }
+
+        function setFavorites(favorites) {
+            const list = Array.from(favorites);
+            localStorage.setItem(favoritesStorageKey, JSON.stringify(list));
+        }
+
+        function toggleFavorite(projectId) {
+            const favorites = getFavorites();
+            if (favorites.has(projectId)) {
+                favorites.delete(projectId);
+            } else {
+                favorites.add(projectId);
+            }
+            setFavorites(favorites);
+            renderProjects(cachedProjects);
+        }
+
+        function sortProjects(projects) {
+            const sorted = [...projects];
+            if (projectSort === 'lastActivityAsc' || projectSort === 'lastActivityDesc') {
+                sorted.sort((a, b) => {
+                    const aTime = a.lastModified ? new Date(a.lastModified).getTime() : 0;
+                    const bTime = b.lastModified ? new Date(b.lastModified).getTime() : 0;
+                    return projectSort === 'lastActivityAsc' ? aTime - bTime : bTime - aTime;
+                });
+            }
+            return sorted;
+        }
+
+        function filterProjects(projects) {
+            if (projectFilter !== 'favorites') {
+                return projects;
+            }
+            const favorites = getFavorites();
+            return projects.filter(p => favorites.has(p.path));
+        }
+
         function renderProjects(projects) {
             const container = document.getElementById('projects');
+            const filteredProjects = filterProjects(projects || []);
+            const sortedProjects = sortProjects(filteredProjects);
 
             // Update summary badges
             const total = projects ? projects.length : 0;
@@ -1343,8 +1468,20 @@ const indexHTML = `<!DOCTYPE html>
                 return;
             }
 
-            container.innerHTML = projects.map(proj => {
+            if (sortedProjects.length === 0) {
+                container.innerHTML = ` + "`" + `
+                    <div class="empty-state">
+                        <p>No favorites yet</p>
+                        <p style="font-size: 0.8rem; margin-top: 0.5rem;">Star projects to add them to favorites</p>
+                    </div>
+                ` + "`" + `;
+                return;
+            }
+
+            const favorites = getFavorites();
+            container.innerHTML = sortedProjects.map(proj => {
                 let statusIcons = [];
+                const isFavorite = favorites.has(proj.path);
 
                 // Changed files icon (pencil)
                 if (proj.changedFiles > 0) {
@@ -1409,7 +1546,14 @@ const indexHTML = `<!DOCTYPE html>
                     ` + "`" + `);
                 }
 
-                const lastMod = proj.lastModified ? new Date(proj.lastModified).toLocaleDateString() : '';
+                let lastMod = '';
+                let lastModSuffix = '';
+                if (proj.lastModified) {
+                    const lastDate = new Date(proj.lastModified);
+                    lastMod = lastDate.toLocaleDateString();
+                    const daysSince = Math.max(0, Math.floor((Date.now() - lastDate.getTime()) / 86400000));
+                    lastModSuffix = ` + "`" + ` (${daysSince}d ago)` + "`" + `;
+                }
 
                 return ` + "`" + `
                 <div class="service-card ${proj.changedFiles > 0 || proj.unpushed > 0 ? 'http' : ''}">
@@ -1419,11 +1563,17 @@ const indexHTML = `<!DOCTYPE html>
                             <div class="source-badge">${proj.branch || 'no branch'}</div>
                         </div>
                         <div class="project-status-icons">
+                            <button class="favorite-button ${isFavorite ? 'active' : ''}" onclick="toggleFavorite('${proj.path}')"
+                                title="${isFavorite ? 'Unfavorite' : 'Favorite'}">
+                                <svg viewBox="0 0 24 24" fill="${isFavorite ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polygon points="12 2 15 9 22 9 16.5 13.5 18.5 21 12 16.5 5.5 21 7.5 13.5 2 9 9 9 12 2"></polygon>
+                                </svg>
+                            </button>
                             ${statusIcons.join('')}
                         </div>
                     </div>
                     <div class="service-details">
-                        ${lastMod ? ` + "`" + `<p>Last activity: ${lastMod}</p>` + "`" + ` : ''}
+                        ${lastMod ? ` + "`" + `<p>Last activity: ${lastMod}${lastModSuffix}</p>` + "`" + ` : ''}
                     </div>
                     <div class="service-tags">
                         ${(proj.tags || []).map(tag => ` + "`" + `<span class="tag ${tag}">${tag}</span>` + "`" + `).join('')}
