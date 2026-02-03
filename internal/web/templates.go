@@ -1365,6 +1365,28 @@ const indexHTML = `<!DOCTYPE html>
         let projectFilter = 'all';
         let cachedProjects = [];
         const favoritesStorageKey = 'projects:favorites';
+        const sortStorageKey = 'projects:sort';
+        const filterStorageKey = 'projects:filter';
+
+        function restoreProjectPreferences() {
+            try {
+                const savedSort = localStorage.getItem(sortStorageKey);
+                const savedFilter = localStorage.getItem(filterStorageKey);
+
+                if (savedSort) {
+                    projectSort = savedSort;
+                    const sortSelect = document.getElementById('projects-sort');
+                    if (sortSelect) sortSelect.value = savedSort;
+                }
+                if (savedFilter) {
+                    projectFilter = savedFilter;
+                    const filterSelect = document.getElementById('projects-filter');
+                    if (filterSelect) filterSelect.value = savedFilter;
+                }
+            } catch (e) {
+                console.error('Failed to restore project preferences:', e);
+            }
+        }
 
         async function loadProjects() {
             try {
@@ -1384,11 +1406,13 @@ const indexHTML = `<!DOCTYPE html>
 
         function updateProjectSort(value) {
             projectSort = value;
+            localStorage.setItem(sortStorageKey, value);
             renderProjects(cachedProjects);
         }
 
         function updateProjectFilter(value) {
             projectFilter = value;
+            localStorage.setItem(filterStorageKey, value);
             renderProjects(cachedProjects);
         }
 
@@ -2200,6 +2224,7 @@ const indexHTML = `<!DOCTYPE html>
 
         // Initial load
         restoreCollapsedState();
+        restoreProjectPreferences();
         loadConfig().then(() => {
             loadProjects();
             loadServices();
